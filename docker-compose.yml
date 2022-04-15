@@ -24,6 +24,7 @@ services:
     volumes:
       - mongo-data:/data/db
     environment:
+      - MONGO_INITDB_DATABASE=todo
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
   mongo-express:

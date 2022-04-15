@@ -8,7 +8,6 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmit": true,
@@ -22,23 +21,22 @@
     "skipLibCheck": true,
     "strict": true,
     "paths": {
-      "@components/*": ["components/*"],
-      "@pages/*": ["pages/*"],
-      "@hooks/*": ["hooks/*"],
-      "@styles/*": ["styles/*"],
-      "@store/*": ["store/*"],
-      "@assets/*": ["assets/*"],
-      "@mock_data/*": ["mock_data/*"],
-      "@apis/*": ["apis/*"],
+      "@controllers/*": ["controllers/*"],
+      "@models/*": ["models/*"],
+      "@routes/*": ["routes/*"],
+      "@middleware/*": ["middleware/*"],
+      "@config/*": ["config/*"],
     }
   },
   "include": [
     "src",
     "./src/**/*.js",
     "./src/**.js",
+    "./src/**/*.ts",
+    "./src/**.ts",
   ],
   "exclude": [
     "node_modules",
-    "lib"
+    "lib",
   ]
 }

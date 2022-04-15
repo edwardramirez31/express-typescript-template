@@ -1,35 +1,28 @@
 /* eslint-disable no-console */
 import express from 'express';
+import mongoose from 'mongoose';
+import taskRouter from './routes/tasks';
+
+async function startMongo() {
+  try {
+    await mongoose.connect('mongodb://admin:password@db:27017/todo?authSource=admin');
+    console.log('MONGO CONNECTED');
+  } catch (error) {
+    console.log(error);
+  }
+}
+startMongo();
 
 const app = express();
+// middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+// routers
+app.use('/api/v1/task', taskRouter);
+
 const port = 5000;
 app.get('/', (_, res) => {
   res.status(200).send('<h1>Here</h1>');
 });
 
 app.listen(port, () => console.log(`Running on port ${port}`));
-// import express, { Application, Request, Response } from "express";
-
-// const app: Application = express();
-// const port = 3000;
-
-// // Body parsing Middleware
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-// app.get(
-//     "/",
-//     async (req: Request, res: Response): Promise<Response> => {
-//         return res.status(200).send({
-//             message: "Hello World!",
-//         });
-//     }
-// );
-
-// try {
-//     app.listen(port, (): void => {
-//         console.log(`Connected successfully on port ${port}`);
-//     });
-// } catch (error) {
-//     console.error(`Error occured: ${error.message}`);
-// }

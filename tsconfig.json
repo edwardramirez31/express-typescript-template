@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": "src/",
+    "allowJs": true,
+    "incremental": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "paths": {
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@hooks/*": ["hooks/*"],
+      "@styles/*": ["styles/*"],
+      "@store/*": ["store/*"],
+      "@assets/*": ["assets/*"],
+      "@mock_data/*": ["mock_data/*"],
+      "@apis/*": ["apis/*"],
+    }
+  },
+  "include": [
+    "src",
+    "./src/**/*.js",
+    "./src/**.js",
+  ],
+  "exclude": [
+    "node_modules",
+    "lib"
+  ]
+}

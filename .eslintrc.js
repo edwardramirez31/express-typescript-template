@@ -26,6 +26,9 @@ module.exports = {
       },
     ],
     'import/extensions': 'off',
+    'comma-dangle': 'off',
+    'no-underscore-dangle': 'off',
+    'implicit-arrow-linebreak': 'off',
   },
   settings: {
     'import/resolver': {

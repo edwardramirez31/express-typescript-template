@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import taskRouter from './routes/tasks';
 import authRouter from './routes/auth';
+import errorMiddleware from './middleware/error';
 
 dotenv.config();
 
@@ -33,5 +34,6 @@ const port = 5000;
 app.get('/', (_, res) => {
   res.status(200).send('<h1>Here</h1>');
 });
+app.use(errorMiddleware);
 
 app.listen(port, () => console.log(`Running on port ${port}`));

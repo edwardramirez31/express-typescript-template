@@ -29,6 +29,7 @@ module.exports = {
     'comma-dangle': 'off',
     'no-underscore-dangle': 'off',
     'implicit-arrow-linebreak': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_next$' }],
   },
   settings: {
     'import/resolver': {

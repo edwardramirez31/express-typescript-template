@@ -1,9 +1,10 @@
+import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { HttpError } from '../types/api';
 import secret, { TOKEN_EXPIRATION, TOKEN_REFRESH_EXPIRATION } from '../constants';
 import User from '../models/user';
-import Handler from '../types/api';
 import RefreshToken from '../models/refreshToken';
 
 const generateTokens = (userId: string) => {
@@ -12,14 +13,14 @@ const generateTokens = (userId: string) => {
   return { accessToken, refreshToken };
 };
 
-export const register: Handler = async (req, res) => {
+export const register = asyncHandler(async (req, res, _next) => {
   const { email, fullName, password } = req.body;
   if (!email || !fullName || !password) {
-    return res.status(400).json({ message: 'Bad data' });
+    throw new HttpError(400, 'Bad data');
   }
   const user = await User.findOne({ email });
   if (user) {
-    return res.status(400).json({ message: 'User already exists' });
+    throw new HttpError(400, 'User already exists');
   }
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
@@ -34,7 +35,7 @@ export const register: Handler = async (req, res) => {
       expires: Date.now() + TOKEN_REFRESH_EXPIRATION * 1000,
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       email: newUser.email,
       id: newUser._id,
       fullName: newUser.fullName,
@@ -42,21 +43,20 @@ export const register: Handler = async (req, res) => {
       refreshToken,
     });
   }
+  throw new HttpError(400, 'invalid user data');
+});
 
-  return res.status(400).json({ message: 'invalid user data' });
-};
-
-export const login: Handler = async (req, res) => {
+export const login = asyncHandler(async (req, res, _next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ message: 'User does not exist' });
+    throw new HttpError(400, 'User does not exist');
   }
 
   const isPasswordValid = bcrypt.compareSync(password, user.password);
 
   if (!isPasswordValid) {
-    return res.status(400).json({ message: 'Invalid password' });
+    throw new HttpError(400, 'Invalid password');
   }
   const { accessToken, refreshToken } = generateTokens(user._id);
 
@@ -67,33 +67,31 @@ export const login: Handler = async (req, res) => {
     expires: Date.now() + TOKEN_REFRESH_EXPIRATION * 1000,
   });
 
-  return res.status(200).json({
+  res.status(200).json({
     id: user._id,
     fullName: user.fullName,
     email: user.email,
     accessToken,
     refreshToken,
   });
-};
+});
 
-export const refreshTokenHandler: Handler = async (req, res) => {
+export const refreshTokenHandler = asyncHandler(async (req, res, _next) => {
   const {
     body: { token },
   } = req;
 
   if (!token) {
-    return res.status(400).json({ message: 'token not sent' });
+    throw new HttpError(400, 'send a token');
   }
 
   const refresh = await RefreshToken.findOne({ token });
 
   if (!refresh) {
-    return res.status(400).json({ message: 'token does not exist' });
+    throw new HttpError(400, 'token does not exist');
   }
   if (refresh.isExpired) {
-    return res.status(403).json({
-      message: 'Refresh token was expired. Please make a new login request',
-    });
+    throw new HttpError(403, 'Refresh token was expired. Please make a new login request');
   }
 
   const { accessToken, refreshToken } = generateTokens(refresh.user.toString());
@@ -105,18 +103,18 @@ export const refreshTokenHandler: Handler = async (req, res) => {
   });
   // remove old token
   await refresh.remove();
-  return res.status(200).json({
+  res.status(200).json({
     accessToken,
     refreshToken,
   });
-};
+});
 
-export const logout: Handler = async (req, res) => {
+export const logout = asyncHandler(async (req, res, _next) => {
   const { token } = req.body;
   const refresh = await RefreshToken.findOne({ token });
   if (!refresh) {
-    return res.status(400).json({ message: 'token does not exist' });
+    throw new HttpError(400, 'token does not exist');
   }
   await refresh.remove();
-  return res.status(200).json({ message: 'logged out' });
-};
+  res.status(200).json({ message: 'logged out' });
+});

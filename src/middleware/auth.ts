@@ -1,9 +1,10 @@
-import jwt, { TokenExpiredError } from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler';
+import { HttpError } from '../types/api';
 import secret from '../constants';
-import { MiddlewareHandler } from '../types/api';
 import User from '../models/user';
 
-const authMiddleware: MiddlewareHandler = async (req, res, next) => {
+const authMiddleware = asyncHandler(async (req, _res, next) => {
   try {
     const { authorization } = req.headers;
     // check bearer is present
@@ -14,21 +15,29 @@ const authMiddleware: MiddlewareHandler = async (req, res, next) => {
       // get user
       const user = await User.findById(id).select('-password');
       if (!user) {
-        return res.status(400).json({ message: 'User does not exist' });
+        throw new HttpError(400, 'User does not exist');
       }
       req.user = user;
-      return next();
+      next();
+    } else {
+      throw new HttpError(401, 'token is not present');
     }
-    return res.status(401).json({ message: 'token not present' });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
 
     if (error instanceof TokenExpiredError) {
-      return res.status(401).json({ message: 'token has expired' });
+      throw new HttpError(401, 'token has expired');
     }
-    return res.status(401).json({ message: 'unauthorized' });
+    if (error instanceof JsonWebTokenError) {
+      throw new HttpError(400, error.message);
+    }
+    if (error instanceof HttpError) {
+      throw new HttpError(error.status, error.message);
+    }
+
+    throw new HttpError(401, 'unauthorized');
   }
-};
+});
 
 export default authMiddleware;

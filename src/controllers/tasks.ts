@@ -1,52 +1,53 @@
-import Handler from '../types/api';
+import asyncHandler from 'express-async-handler';
+import { HttpError } from '../types/api';
 import Task from '../models/task';
 
-export const getTasks: Handler = async (req, res) => {
+export const getTasks = asyncHandler(async (req, res, _next) => {
   const { user } = req;
   if (!user) {
-    return res.status(401);
+    throw new HttpError(401, 'don"t have permissions');
   }
   const tasks = await Task.find({ createdBy: user._id });
-  return res.status(200).json(tasks);
-};
+  res.status(200).json(tasks);
+});
 
-export const createTask: Handler = async (req, res) => {
+export const createTask = asyncHandler(async (req, res, _next) => {
   const { user } = req;
   if (!user) {
-    return res.status(401);
+    throw new HttpError(401, 'don"t have permissions');
   }
   const { body, completed } = req.body;
 
   const task = await Task.create({ body, completed, createdBy: user._id });
-  return res.status(200).json(task);
-};
+  res.status(200).json(task);
+});
 
-export const updateTask: Handler = async (req, res) => {
+export const updateTask = asyncHandler(async (req, res, _next) => {
   const { id } = req.params;
   const { user } = req;
   const doc = await Task.findById(id);
   if (!doc) {
-    return res.status(400).json({ message: 'task does not exist' });
+    throw new HttpError(400, 'task does not exist');
   }
   if (doc.createdBy.toString() !== user?._id.toString()) {
-    return res.status(401).json({ message: 'you can"t access this resource' });
+    throw new HttpError(401, 'don"t have permissions');
   }
   doc.body = req.body.body;
   doc.completed = req.body.completed;
   await doc.save();
-  return res.status(200).json(doc);
-};
+  res.status(200).json(doc);
+});
 
-export const deleteTask: Handler = async (req, res) => {
+export const deleteTask = asyncHandler(async (req, res, _next) => {
   const { user } = req;
   const { id } = req.params;
   const task = await Task.findById(id);
   if (!task) {
-    return res.status(400).json({ message: 'task does not exist' });
+    throw new HttpError(400, 'task does not exist');
   }
   if (task.createdBy.toString() !== user?._id.toString()) {
-    return res.status(401).json({ message: 'you can"t access this resource' });
+    throw new HttpError(401, 'don"t have permissions');
   }
   await task.remove();
-  return res.status(200).json(task);
-};
+  res.status(200).json(task);
+});
